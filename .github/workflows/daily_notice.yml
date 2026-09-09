@@ -1,0 +1,30 @@
+name: Daily Announcement Automation
+
+on:
+  schedule:
+    # Every day at 09:00 AM UTC (adjust as needed for your timezone)
+    - cron: '0 9 * * *'
+  workflow_dispatch: # Manuel trigger
+jobs:
+  run-automation:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install selenium webdriver-manager python-dotenv
+
+      - name: Run Selenium Script
+        env:
+          TANTANA_USER: ${{ secrets.TANTANA_USER }}
+          TANTANA_PASSWORD: ${{ secrets.TANTANA_PASSWORD }}
+        run: python selenium_tantana_sosyal.py
