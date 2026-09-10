@@ -2,12 +2,9 @@ name: Daily Announcement Automation
 
 on:
   schedule:
-    # Every day at 11:15 AM UTC (adjust as needed for your timezone)
-    - cron: '15 11 * * *'
-  workflow_dispatch: # Manuel trigger
-
-permissions: 
-  contents: write
+    # (UTC 12:00)
+    - cron: '0 12 * * *'
+  workflow_dispatch: # Manuel tetikleme
 
 jobs:
   run-automation:
@@ -32,11 +29,3 @@ jobs:
           TANTANA_USER: ${{ secrets.TANTANA_USER }}
           TANTANA_PASSWORD: ${{ secrets.TANTANA_PASSWORD }}
         run: python selenium_tantana_sosyal.py
-      
-      - name: Commit and Push Changes
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add .
-          git commit -m "Daily announcement posted by GitHub Actions"
-          git push
