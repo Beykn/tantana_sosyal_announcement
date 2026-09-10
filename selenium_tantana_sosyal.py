@@ -7,10 +7,9 @@ from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.options import Options
 
-COUNTER_FILE = "counter.txt"
 MAX_DAY = 15
+COUNTER_FILE = "counter.txt"
 
-# Initialize the current day counter
 def get_current_day():
     if os.path.exists(COUNTER_FILE):
         with open(COUNTER_FILE, "r") as f:
@@ -18,16 +17,20 @@ def get_current_day():
                 return int(f.read().strip())
             except ValueError:
                 return 1
-    else:
-        return 1
+    return 1
 
 def update_current_day(day):
     with open(COUNTER_FILE, "w") as f:
         f.write(str(day))
 
 def post_daily_announcement():
+    current_day = get_current_day()
 
-    # Start chrome headless browser  
+    if current_day > MAX_DAY:
+        print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Tüm duyurular ({MAX_DAY} gün) zaten tamamlandı.")
+        return
+
+    # Chrome options setup
     chrome_options = Options()
     chrome_options.add_argument('--headless')
     chrome_options.add_argument('--no-sandbox')
@@ -35,34 +38,26 @@ def post_daily_announcement():
     chrome_options.add_argument('--disable-gpu')
     chrome_options.add_argument('--window-size=1920,1080')
 
-    global current_day
+    print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] {current_day}. gün duyurusu paylaşılıyor...")
 
-    if current_day > MAX_DAY:
-        print("All announcements have been posted.")
-        return
-
-    print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] {current_day}. announcement is being posted...")
-
-    # Chrome automation
     driver = webdriver.Chrome(
-                                service=Service(ChromeDriverManager().install()), 
-                                options=chrome_options,
-                            )
+        service=Service(ChromeDriverManager().install()), 
+        options=chrome_options,
+    )
     try:
-        # Login to the web page
+        # Login
         driver.get("https://sosyal.tantanacaz.com/login")
-        time.sleep(2) # wait for the page load
+        time.sleep(2)
 
         username_input = driver.find_element(By.ID, "identifier")
         password_input = driver.find_element(By.ID, "password")
         login_button = driver.find_element(By.CLASS_NAME, "login-submit")
 
-        # Secrets/Environment Variables
         username_input.send_keys(os.environ.get('TANTANA_USER'))
         password_input.send_keys(os.environ.get('TANTANA_PASSWORD'))
         login_button.click()
 
-        time.sleep(3) # wait for login 
+        time.sleep(3) 
 
         # Announcement posting
         driver.get("https://sosyal.tantanacaz.com/duyurular")
@@ -72,30 +67,27 @@ def post_daily_announcement():
         driver.execute_script("arguments[0].click();", new_notice_btn)
         time.sleep(3)
 
-        today_str = datetime.now().strftime('%Y-%m-%d')
-
-        # Fill in the announcement form
         title_input = driver.find_element(By.ID, "announcement-title")
         content_input = driver.find_element(By.ID, "announcement-body")
 
-        title_input.send_keys(f"Daily Announcement {today_str}")
-        content_input.send_keys(f"This is the content of daily announcement {today_str}.")
+        today_str = datetime.now().strftime('%Y-%m-%d')
+        title_input.send_keys(f"Daily Announcement {current_day} - {today_str}")
+        content_input.send_keys(f"This is the content of daily announcement {current_day}.")
         
-        # Click the publish button
         publish_btn = driver.find_element(By.CLASS_NAME, "announcement-publish-button")
         driver.execute_script("arguments[0].click();", publish_btn)
 
         time.sleep(3)
-        print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] {current_day}. announcement has been posted successfully.")
+        print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] {current_day}. gün duyurusu başarıyla gönderildi.")
 
+        # İşlem başarılı olursa sayacı 1 artırıp dosyaya yazıyoruz
         update_current_day(current_day + 1)
 
     except Exception as e:
-        print(f"An error occurred while posting the announcement: {e}")
+        print(f"Duyuru eklenirken bir hata oluştu: {e}")
     finally:
         time.sleep(2)
         driver.quit()
 
 if __name__ == '__main__':
-
     post_daily_announcement()
