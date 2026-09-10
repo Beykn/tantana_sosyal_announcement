@@ -7,27 +7,16 @@ from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.options import Options
 
-MAX_DAY = 15
-COUNTER_FILE = "counter.txt"
+MAX_DAY = "2026-09-25"
+today_str = datetime.now().strftime('%Y-%m-%d')
 
-def get_current_day():
-    if os.path.exists(COUNTER_FILE):
-        with open(COUNTER_FILE, "r") as f:
-            try:
-                return int(f.read().strip())
-            except ValueError:
-                return 1
-    return 1
 
-def update_current_day(day):
-    with open(COUNTER_FILE, "w") as f:
-        f.write(str(day))
 
 def post_daily_announcement():
-    current_day = get_current_day()
+    
 
-    if current_day > MAX_DAY:
-        print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Tüm duyurular ({MAX_DAY} gün) zaten tamamlandı.")
+    if today_str > MAX_DAY:
+        print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Tüm duyurular ({MAX_DAY} tarihine kadar) zaten tamamlandı.")
         return
 
     # Chrome options setup
@@ -38,7 +27,7 @@ def post_daily_announcement():
     chrome_options.add_argument('--disable-gpu')
     chrome_options.add_argument('--window-size=1920,1080')
 
-    print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] {current_day}. gün duyurusu paylaşılıyor...")
+    print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] {today_str} gün duyurusu paylaşılıyor...")
 
     driver = webdriver.Chrome(
         service=Service(ChromeDriverManager().install()), 
@@ -70,18 +59,16 @@ def post_daily_announcement():
         title_input = driver.find_element(By.ID, "announcement-title")
         content_input = driver.find_element(By.ID, "announcement-body")
 
-        today_str = datetime.now().strftime('%Y-%m-%d')
-        title_input.send_keys(f"Daily Announcement {current_day} - {today_str}")
-        content_input.send_keys(f"This is the content of daily announcement {current_day}.")
+        
+        title_input.send_keys(f"Daily Announcement {today_str} ")
+        content_input.send_keys(f"This is the content of daily announcement {today_str}.")
         
         publish_btn = driver.find_element(By.CLASS_NAME, "announcement-publish-button")
         driver.execute_script("arguments[0].click();", publish_btn)
 
         time.sleep(3)
-        print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] {current_day}. gün duyurusu başarıyla gönderildi.")
+        print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] {today_str}. gün duyurusu başarıyla gönderildi.")
 
-        # İşlem başarılı olursa sayacı 1 artırıp dosyaya yazıyoruz
-        update_current_day(current_day + 1)
 
     except Exception as e:
         print(f"Duyuru eklenirken bir hata oluştu: {e}")

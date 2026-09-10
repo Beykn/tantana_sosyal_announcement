@@ -2,8 +2,8 @@ name: Daily Announcement Automation
 
 on:
   schedule:
-    # Every day at 10:15 AM UTC (adjust as needed for your timezone)
-    - cron: '15 10 * * *'
+    # Every day at 11:15 AM UTC (adjust as needed for your timezone)
+    - cron: '15 11 * * *'
   workflow_dispatch: # Manuel trigger
 
 permissions: 
@@ -37,6 +37,6 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add counter.txt
-          git commit -m "chore: update announcement day counter" || echo "No changes to commit"
+          git add .
+          git commit -m "Daily announcement posted by GitHub Actions"
           git push
