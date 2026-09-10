@@ -2,21 +2,25 @@ name: Daily Announcement Automation
 
 on:
   schedule:
-    # Every day at 09:00 AM UTC (adjust as needed for your timezone)
-    - cron: '0 9 * * *'
+    # Every day at 10:00 AM UTC (adjust as needed for your timezone)
+    - cron: '0 10 * * *'
   workflow_dispatch: # Manuel trigger
+
+permissions: 
+  contents: write
+
 jobs:
   run-automation:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: '3.x'
 
       - name: Install Dependencies
         run: |
@@ -28,3 +32,11 @@ jobs:
           TANTANA_USER: ${{ secrets.TANTANA_USER }}
           TANTANA_PASSWORD: ${{ secrets.TANTANA_PASSWORD }}
         run: python selenium_tantana_sosyal.py
+      
+      - name: Commit and Push Changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add counter.txt
+          git commit -m "chore: update announcement day counter" || echo "No changes to commit"
+          git push
