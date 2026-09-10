@@ -3,7 +3,7 @@ name: Daily Announcement Automation
 on:
   schedule:
     # (UTC)
-    - cron: '02 19 * * *'
+    - cron: '0 12 * * *'
       timezone: 'Europe/Istanbul'
   workflow_dispatch: # Manuel tetikleme
 
