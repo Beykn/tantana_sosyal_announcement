@@ -3,8 +3,11 @@ name: Daily Announcement Automation
 on:
   schedule:
     # (UTC)
-    - cron: '45 12 * * *'
+    - cron: '30 14 * * *'
   workflow_dispatch: # Manuel tetikleme
+
+permissions:
+  contents: read
 
 jobs:
   run-automation:
