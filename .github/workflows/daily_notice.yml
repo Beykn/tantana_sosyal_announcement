@@ -2,24 +2,34 @@ name: Daily Announcement Automation
 
 on:
   schedule:
-    # (UTC)
+    # Her gün İstanbul saatiyle 12:00
     - cron: '0 12 * * *'
       timezone: 'Europe/Istanbul'
+
   workflow_dispatch: # Manuel tetikleme
 
 permissions:
   contents: write
+
+env:
+  TZ: Europe/Istanbul
 
 jobs:
   run-automation:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Set Runner Timezone
+        run: |
+          sudo timedatectl set-timezone Europe/Istanbul
+          echo "Current system time:"
+          date
+
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.x'
 
@@ -32,13 +42,19 @@ jobs:
         env:
           TANTANA_USER: ${{ secrets.TANTANA_USER }}
           TANTANA_PASSWORD: ${{ secrets.TANTANA_PASSWORD }}
-        run: python selenium_tantana_sosyal.py
+          TZ: Europe/Istanbul
+        run: |
+          echo "Automation starting at:"
+          date
+          python selenium_tantana_sosyal.py
 
       - name: Commit and Push Changes
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
           git add -A
+
           if ! git diff-index --quiet HEAD; then
             git commit -m "chore: automated daily announcement run"
             git push
