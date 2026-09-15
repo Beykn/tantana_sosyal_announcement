@@ -3,7 +3,7 @@ name: Daily Announcement Automation
 on:
   schedule:
     # Her gün İstanbul saatiyle 12:00 (saat başı GitHub'da en yoğun/gecikmeli dakika olduğu için 0 yerine 7 kullanıldı)
-    - cron: '7 12 * * *'
+    - cron: '7 13 * * *'
       timezone: 'Europe/Istanbul'
 
   workflow_dispatch: # Manuel tetikleme
