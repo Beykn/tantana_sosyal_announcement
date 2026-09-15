@@ -2,8 +2,8 @@ name: Daily Announcement Automation
 
 on:
   schedule:
-    # Her gün İstanbul saatiyle 12:00
-    - cron: '0 12 * * *'
+    # Her gün İstanbul saatiyle 12:00 (saat başı GitHub'da en yoğun/gecikmeli dakika olduğu için 0 yerine 7 kullanıldı)
+    - cron: '7 12 * * *'
       timezone: 'Europe/Istanbul'
 
   workflow_dispatch: # Manuel tetikleme
@@ -19,12 +19,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Set Runner Timezone
-        run: |
-          sudo timedatectl set-timezone Europe/Istanbul
-          echo "Current system time:"
-          date
-
       - name: Checkout Repository
         uses: actions/checkout@v4
 
@@ -42,7 +36,6 @@ jobs:
         env:
           TANTANA_USER: ${{ secrets.TANTANA_USER }}
           TANTANA_PASSWORD: ${{ secrets.TANTANA_PASSWORD }}
-          TZ: Europe/Istanbul
         run: |
           echo "Automation starting at:"
           date
